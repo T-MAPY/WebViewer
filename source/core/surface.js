@@ -30,6 +30,7 @@ goog.require('owg.TriangleIntersector');
 goog.require('owg.mat4');
 goog.require('owg.vec3');
 goog.require('owg.vec4');
+goog.require('owg.GeoCoord');
 
 //------------------------------------------------------------------------------
 /**
@@ -209,6 +210,8 @@ function Surface(engine)
    this.dx = 0;
    /** @type {number} */
    this.dy = 0;
+   /** @type {?string} */
+   this.buildingId = null;
 }
 
 //------------------------------------------------------------------------------
@@ -806,7 +809,13 @@ Surface.prototype.CreateFromJSONObject = function (jsonobject, readycbf, failedc
 
    if (jsonobject['Offset'])
    {
-      surface.offset = jsonobject['Offset'];
+       surface.offset = jsonobject['Offset'];
+
+       if (jsonobject['id'])
+       {
+           this.buildingId = jsonobject['id'];
+           surface.modelMatrix = this.RecountOffsetElevation(surface.offset);
+       }
    }
 
    if (jsonobject['CurtainIndex'])
@@ -930,6 +939,29 @@ Surface.prototype.CreateFromJSONObject = function (jsonobject, readycbf, failedc
    {
       surface.cbr(surface);
    }
+}
+//------------------------------------------------------------------------------
+/**
+ * @description Recount elevation for surface.
+ *
+ */
+Surface.prototype.RecountOffsetElevation = function (offset)
+{
+    var geoPos = new GeoCoord(0, 0, 0);
+    geoPos.FromCartesian(offset[0], offset[1], offset[2]);
+    var result = this.engine.GetElevationAt(geoPos.GetLongitude(), geoPos.GetLatitude());
+
+    geoPos.Set(geoPos.GetLongitude(), geoPos.GetLatitude(), geoPos.GetElevation() + result.elevation);
+
+    var resPos = [0, 0, 0];
+    geoPos.ToCartesian(resPos);
+
+    var mat = new mat4();
+
+    //var difference = (resPos[2] - offset[2]) * 1.7;
+    mat.Translation(resPos[0] - offset[0], resPos[1] - offset[1], resPos[2] - offset[2]);
+
+    return mat;
 }
 //------------------------------------------------------------------------------
 /**
