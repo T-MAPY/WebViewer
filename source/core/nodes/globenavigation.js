@@ -131,8 +131,8 @@ function GlobeNavigationNode()
    this._navrotation = new mat4();
    this._navtotal = new mat4();
 
-   this.minAltitude = 50;
-   this.maxAltitude = 10000000;
+   this.minAltitude = 100;
+   this.maxAltitude = 100000;
    // external navigation commands
    this.navigationcommand = TraversalState.NavigationCommand.IDLE;
    this.navigationparam = 0;
@@ -288,7 +288,7 @@ function GlobeNavigationNode()
       goog.events.unlistenByKey(this.evtMouseDown);
       goog.events.unlistenByKey(this.evtMouseMove);
       goog.events.unlistenByKey(this.evtMouseUp);
-      goog.events.unlistenByKey(this.evtMouseDoubleClick);
+      //goog.events.unlistenByKey(this.evtMouseDoubleClick);
       goog.events.unlistenByKey(this.evtMouseWheel);
 
    }
@@ -301,7 +301,7 @@ function GlobeNavigationNode()
       this.evtMouseMove = goog.events.listen(context, goog.events.EventType.MOUSEMOVE, this.OnMouseMove, false, this);
       this.evtMouseUp = goog.events.listen(context, goog.events.EventType.MOUSEUP, this.OnMouseUp, false, this);
       this.evtMouseOut = goog.events.listen(context, goog.events.EventType.MOUSEOUT, this.OnMouseOut, false, this);
-      this.evtMouseDoubleClick = goog.events.listen(context, goog.events.EventType.DBLCLICK, this.OnMouseDoubleClick, false, this);
+      //this.evtMouseDoubleClick = goog.events.listen(context, goog.events.EventType.DBLCLICK, this.OnMouseDoubleClick, false, this);
       var mouseWheelHandler = new goog.events.MouseWheelHandler(context);
       this.evtMouseWheel = goog.events.listen(mouseWheelHandler, goog.events.MouseWheelHandler.EventType.MOUSEWHEEL, this.OnMouseWheel, false, this);
 
@@ -488,22 +488,22 @@ function GlobeNavigationNode()
          this._inputs |= GlobeNavigationNode.INPUTS.MODIFIER_CONTROL;
          return this._cancelEvent(e);
       }
-      else if (e.keyCode == 37 || e.keyCode == 65) // 'LeftArrow' or 'A'
+      else if (e.keyCode == 37)// || e.keyCode == 65) // 'LeftArrow' or 'A'
       {
          this._inputs |= GlobeNavigationNode.INPUTS.KEY_LEFT;
          return this._cancelEvent(e);
       }
-      else if (e.keyCode == 38 || e.keyCode == 87) // 'UpArrow' or 'W'
+      else if (e.keyCode == 38)// || e.keyCode == 87) // 'UpArrow' or 'W'
       {
          this._inputs |= GlobeNavigationNode.INPUTS.KEY_UP;
          return this._cancelEvent(e);
       }
-      else if (e.keyCode == 39 || e.keyCode == 68) // 'RightArrow' or 'D'
+      else if (e.keyCode == 39)// || e.keyCode == 68) // 'RightArrow' or 'D'
       {
          this._inputs |= GlobeNavigationNode.INPUTS.KEY_RIGHT;
          return this._cancelEvent(e);
       }
-      else if (e.keyCode == 40 || e.keyCode == 83) // 'DownArrow' or 'S'
+      else if (e.keyCode == 40)// || e.keyCode == 83) // 'DownArrow' or 'S'
       {
          this._inputs |= GlobeNavigationNode.INPUTS.KEY_DOWN;
          return this._cancelEvent(e);
@@ -526,22 +526,22 @@ function GlobeNavigationNode()
          this._inputs &= ~GlobeNavigationNode.INPUTS.MODIFIER_CONTROL;
          return this._cancelEvent(e);
       }
-      else if (e.keyCode == 37 || e.keyCode == 65) // 'LeftArrow' or 'A'
+      else if (e.keyCode == 37 )//|| e.keyCode == 65) // 'LeftArrow' or 'A'
       {
          this._inputs &= ~GlobeNavigationNode.INPUTS.KEY_LEFT;
          return this._cancelEvent(e);
       }
-      else if (e.keyCode == 38 || e.keyCode == 87) // 'UpArrow' or 'W'
+      else if (e.keyCode == 38)// || e.keyCode == 87) // 'UpArrow' or 'W'
       {
          this._inputs &= ~GlobeNavigationNode.INPUTS.KEY_UP;
          return this._cancelEvent(e);
       }
-      else if (e.keyCode == 39 || e.keyCode == 68) // 'RightArrow' or 'D'
+      else if (e.keyCode == 39)// || e.keyCode == 68) // 'RightArrow' or 'D'
       {
          this._inputs &= ~GlobeNavigationNode.INPUTS.KEY_RIGHT;
          return this._cancelEvent(e);
       }
-      else if (e.keyCode == 40 || e.keyCode == 83) // 'DownArrow' or 'S'
+      else if (e.keyCode == 40)// || e.keyCode == 83) // 'DownArrow' or 'S'
       {
          this._inputs &= ~GlobeNavigationNode.INPUTS.KEY_DOWN;
          return this._cancelEvent(e);
@@ -552,46 +552,46 @@ function GlobeNavigationNode()
    }
    //---------------------------------------------------------------------------
    // EVENT: Double click: fly to position
-   this.OnMouseDoubleClick = function (e)
-   {
-      if (this._bLockNavigation || this.engine.flyto.isMoving)
-      {
-         return;
-      }
+   //this.OnMouseDoubleClick = function (e)
+   //{
+   //   if (this._bLockNavigation || this.engine.flyto.isMoving)
+   //   {
+   //      return;
+   //   }
 
-      var pickresult = {};
-      this.engine.PickGlobe(this._nMouseX, this._nMouseY, pickresult);
-      if (pickresult["hit"])
-      {
-         this.engine.SetFlightDuration(2000);
-         var targetelv = this._ellipsoidHeight;
-         if (targetelv > 1000000)
-         {
-            targetelv = 1000000;
-            this.engine.FlyTo(pickresult["lng"], pickresult["lat"], targetelv);
-         }
-         else if (targetelv > 250000)
-         {
-            targetelv = 250000;
-            this.engine.FlyTo(pickresult["lng"], pickresult["lat"], targetelv);
-         }
-         else if (targetelv > 50000)
-         {
-            targetelv = 50000;
-            this.engine.FlyTo(pickresult["lng"], pickresult["lat"], targetelv);
-         }
-         else
-         {
-            targetelv = pickresult["elv"] + 5000;
-            this.engine.FlyTo(pickresult["lng"], pickresult["lat"], targetelv, 0, -90, 0);
-         }
+   //   var pickresult = {};
+   //   this.engine.PickGlobe(this._nMouseX, this._nMouseY, pickresult);
+   //   if (pickresult["hit"])
+   //   {
+   //      this.engine.SetFlightDuration(2000);
+   //      var targetelv = this._ellipsoidHeight;
+   //      if (targetelv > 1000000)
+   //      {
+   //         targetelv = 1000000;
+   //         this.engine.FlyTo(pickresult["lng"], pickresult["lat"], targetelv);
+   //      }
+   //      else if (targetelv > 250000)
+   //      {
+   //         targetelv = 250000;
+   //         this.engine.FlyTo(pickresult["lng"], pickresult["lat"], targetelv);
+   //      }
+   //      else if (targetelv > 50000)
+   //      {
+   //         targetelv = 50000;
+   //         this.engine.FlyTo(pickresult["lng"], pickresult["lat"], targetelv);
+   //      }
+   //      else
+   //      {
+   //         targetelv = pickresult["elv"] + 5000;
+   //         this.engine.FlyTo(pickresult["lng"], pickresult["lat"], targetelv, 0, -90, 0);
+   //      }
 
-         this.crosshairpos = [this._nMouseX, this._nMouseY];
-         this.crosshairdelay = 2500;
+   //      this.crosshairpos = [this._nMouseX, this._nMouseY];
+   //      this.crosshairdelay = 2500;
 
-      }
-      return this._cancelEvent(e);
-   }
+   //   }
+   //   return this._cancelEvent(e);
+   //}
    //---------------------------------------------------------------------------
    // EVENT: OnMouseDown
    this.OnMouseDown = function (e)
