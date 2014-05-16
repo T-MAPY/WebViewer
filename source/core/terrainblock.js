@@ -329,8 +329,8 @@ function _cbfOnGeometryTileReady(quadcode, geometry, layer)
 {
    var terrainblock = geometry.caller;
 
-   terrainblock.geometries[layer] = geometry;
-
+   //terrainblock.geometries[layer] = geometry;
+   terrainblock.geometries.push(geometry);
 
    g_activeRequests--;
 }

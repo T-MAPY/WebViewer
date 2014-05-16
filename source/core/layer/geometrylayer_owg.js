@@ -46,6 +46,7 @@ function owgGeometryLayer()
    this.curserver = 0;
    this.minlod = -1;
    this.maxlod = -1;
+    this.availableTiles = [];
    
    //---------------------------------------------------------------------------
    this.Ready = function()
@@ -76,8 +77,15 @@ function owgGeometryLayer()
       var res = {};
       var extent;
       this.quadtree.QuadKeyToWGS84(quadcode, coords);
-      extent="extent="+ coords[1]+","+coords[2]+","+coords[3]+","+coords[0];
-      var sFilename = this.servers[this.curserver] + "/?" + extent + "&format=owg";
+
+      if (this.withoutService)
+      {
+          this.RequestTileWithoutService(engine, quadcode, coords, layer, cbfReady, cbfFailed, caller);
+          return;
+      }
+
+       extent = "extent=" + coords[1] + "," + coords[2] + "," + coords[3] + "," + coords[0];
+       var sFilename = this.servers[this.curserver] + "/?" + extent + "&format=owg";
 
       // create geometry
       var GeometryBlock = new Geometry(engine);
@@ -90,13 +98,61 @@ function owgGeometryLayer()
 
       // handle multiple tile servers
       this.curserver++;
-      if (this.curserver>=this.servers.length)
+      if (this.curserver >= this.servers.length)
       {
-         this.curserver = 0;
+           this.curserver = 0;
       }
-      
+
    };
-  
+   //---------------------------------------------------------------------------
+
+   this.RequestTileWithoutService = function (engine, quadcode, coords, layer, cbfReady, cbfFailed, caller)
+   {
+       var xMin = Math.floor((coords[1] - this.objectsOrigin[0]) / this.objectsStep);
+       var xMax = Math.floor((coords[3] - this.objectsOrigin[0]) / this.objectsStep);
+       var yMin = Math.floor((coords[2] - this.objectsOrigin[1]) / this.objectsStep);
+       var yMax = Math.floor((coords[0] - this.objectsOrigin[1]) / this.objectsStep);
+
+       if (xMin > xMax)
+       {
+           var tmp = xMin;
+           xMin = xMax;
+           xMax = tmp;
+       }
+       if (yMin > yMax)
+       {
+           var tmp = yMin;
+           yMin = yMax;
+           yMax = tmp;
+       }
+
+       var tilePaths = [];
+
+       for (var i = xMin; i < xMax; i++)
+       {
+           for (var j = yMin; j < yMax; j++)
+           {
+               if (this.availableTiles.indexOf('{0}_{1}'.format(i, j)) != -1)
+               {
+                   tilePaths.push('/{0}/{1}/{0}_{1}.json'.format(i, j));
+               }
+           }
+       }
+
+       var self = this;
+       tilePaths.forEach(function (tile)
+       {
+           var sFilename = self.servers[self.curserver] + tile;
+           var geometryBlock = new Geometry(engine);
+           geometryBlock.quadcode = quadcode; // store quadcode in texture object
+           geometryBlock.layer = layer;
+           geometryBlock.cbfReady = cbfReady; // store the ready callback in mesh object
+           geometryBlock.cbfFailed = cbfFailed; // store the failure callback in mesh object
+           geometryBlock.caller = caller;
+           geometryBlock.Load(sFilename, _cbGeometryTileReady_owg, _cbGeometryTileFailed_owg);
+       });
+   };
+
    //---------------------------------------------------------------------------
    this.GetMinLod = function()
    {
@@ -126,11 +182,33 @@ function owgGeometryLayer()
    
    //---------------------------------------------------------------------------
    
-   this.Setup = function(servers, minlod, maxlod)
+   this.Setup = function(servers, minlod, maxlod, withoutService)
    {
       this.servers = servers;
       this.minlod = minlod;
       this.maxlod = maxlod;
+
+      if (withoutService)
+      {
+          this.withoutService = true;
+
+          var metadataRequest = new XMLHttpRequest();
+          metadataRequest.open('GET', servers[0] + '/metadata.json', false);
+          metadataRequest.send(null);
+          var data = JSON.parse(metadataRequest.responseText);
+
+          this.objectsOrigin = data['Origin'];
+          this.objectsStep = data['Step'];
+
+          metadataRequest.open('GET', servers[0] + '/tile_info.txt', false);
+          metadataRequest.send(null);
+          data = metadataRequest.responseText.split('\n');
+
+          for (var i = 0; i < data.length; i++)
+          {
+              this.availableTiles.push(data[i].slice(0, data[i].length - 1));
+          }
+      }
    }
 }
 
