@@ -38,6 +38,7 @@ goog.require('owg.OYMImageLayer');
 goog.require('owg.TMSImageLayer');
 goog.require('owg.WMSImageLayer');
 goog.require('owg.WMTSImageLayer');
+goog.require('owg.WMERCImageLayer');
 goog.require('owg.owgGeometryLayer');
 goog.require('owg.owgPointCloudLayer');
 //------------------------------------------------------------------------------
@@ -375,6 +376,23 @@ GlobeRenderer.prototype.AddImageLayer = function(options)
             this._UpdateLayers();
          }
       }
+      else if (options['service'] == "wmerc")
+      {
+          if (goog.isDef(options['mask'] && options['mask'].length > 0))
+          {
+              var imgLayer = new WMERCImageLayer();
+              var maxLod = undefined;
+              if (goog.isDef(options["maxLod"]))
+              {
+                  maxLod = options["maxLod"];
+              }
+              imgLayer.Setup(options['mask'], maxLod);
+              index = this.imagelayerlist.length;
+              this.imagelayerlist.push(imgLayer);
+              this._UpdateLayers();
+          }
+      }
+
    }
    return index;
 }
@@ -466,10 +484,11 @@ GlobeRenderer.prototype.AddGeometryLayer = function(options)
             var servers = options["url"];
             var minlod = options["minlod"];
             var maxlod = options["maxlod"];
+            var withoutService = options['withoutService'];
 
             // Create OpenWebGlobe Geometry layer:
             var geomLayer = new owgGeometryLayer();
-            geomLayer.Setup(servers, minlod, maxlod);
+            geomLayer.Setup(servers, minlod, maxlod, withoutService);
             index = this.geometrylayerlist.length;
             this.geometrylayerlist.push(geomLayer);
             this._UpdateLayers();
