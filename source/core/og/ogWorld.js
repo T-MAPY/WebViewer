@@ -66,8 +66,9 @@ ogWorld.prototype.ParseOptions = function(options)
       /** @type {Object} */
       var sceneoptions =   // more options will be available in future
       {
-         "rendertotexture" : scene.rendertotexture,
-         "shownavigation" : scene.shownavigation
+          "rendertotexture": scene.rendertotexture,
+          "shownavigation" : false
+         //"shownavigation" : scene.shownavigation
       };
 
       if (options["scenetype"] == OG_SCENE_3D_ELLIPSOID_WGS84)

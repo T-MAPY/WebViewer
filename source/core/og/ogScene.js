@@ -53,7 +53,7 @@ function ogScene()
    /** @type {boolean} */
    this.rendertotexture = true;
    /** @type {boolean} */
-   this.shownavigation = true;
+   this.shownavigation = false;
 }
 //------------------------------------------------------------------------------
 ogScene.prototype = new ogObject();
