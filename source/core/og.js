@@ -1507,7 +1507,7 @@ goog.exportSymbol('ogSetNavigationMode', ogSetNavigationMode);
 *   @param {number} scene_id the scene
 *   @returns {number} the world id
 */
-function ogCreateWorld(scene_id)
+function ogCreateWorld(scene_id, initPosition)
 {
    /** @type {ogScene} */
    var scene = /** @type {ogScene} */ _GetObjectFromId(scene_id);
@@ -1518,6 +1518,12 @@ function ogCreateWorld(scene_id)
       worldoptions["shownavigation"] = scene.shownavigation;
       var world = _CreateObject(OG_OBJECT_WORLD, scene, worldoptions);
       scene.world = world;
+
+      if (initPosition != undefined)
+      {
+          scene.parent.engine.scene.nodeNavigation.SetPosition(initPosition[0], initPosition[1], initPosition[2]);
+          scene.parent.engine.scene.nodeNavigation.SetOrientation(initPosition[3] * (Math.PI / 180), initPosition[4] * (Math.PI / 180), initPosition[5] * (Math.PI / 180));
+      }
 
       //create a camera object and add it to the scene
       var cam = _CreateObject(OG_OBJECT_CAMERA, scene, null);
@@ -1536,11 +1542,11 @@ goog.exportSymbol('ogCreateWorld', ogCreateWorld);
 *   @param {number} context_id the context
 *   @returns {number} the world object (globe)
 */
-function ogCreateGlobe(context_id)
+function ogCreateGlobe(context_id, initPosition)
 {
    // this is just a convienience function to save some typing.
    var scene_id = ogCreateScene(context_id, OG_SCENE_3D_ELLIPSOID_WGS84);
-   var world_id = ogCreateWorld(scene_id);
+   var world_id = ogCreateWorld(scene_id, initPosition);
 
    return world_id;
 }
