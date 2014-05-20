@@ -1928,23 +1928,24 @@ goog.exportSymbol('ogLoadVectorAsync', ogLoadVectorAsync);
  */
 function ogDestroyVector(vector_id)
 {
-   var vector = _GetObjectFromId(vector_id);
-   if (vector && vector.type == OG_OBJECT_VECTOR)
-   {
-      if(vector.layer)
-      {
-         var layer = vector.vectorlayer;
-         if (layer  && layer.type == OG_OBJECT_VECTORLAYER)
-         {
-            layer.RemoveVector(vector);
-         }
-      }
-      else
-      {
-         vector.UnregisterObject();
-      }
+   _GetObjectFromId(vector_id).vectorlayer.RemoveVector(_GetObjectFromId(vector_id));
+   //var vector = _GetObjectFromId(vector_id);
+   //if (vector && vec tor.type == OG_OBJECT_VECTOR)
+   //{
+   //   if(vector.layer)
+   //   {
+   //      var layer = vector.vectorlayer;
+   //      if (layer  && layer.type == OG_OBJECT_VECTORLAYER)
+   //      {
+   //         layer.RemoveVector(vector);
+   //      }
+   //   }
+   //   else
+   //   {
+   //      vector.UnregisterObject();
+   //   }
 
-   }
+   //}
    return -1;
 }
 goog.exportSymbol('ogDestroyVector', ogDestroyVector);
