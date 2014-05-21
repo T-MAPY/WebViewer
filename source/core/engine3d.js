@@ -1462,6 +1462,14 @@ engine3d.prototype.PickBillboard = function (mx, my)
    return -1;
 }
 //-----------------------------------------------------------------------------
+engine3d.prototype.PickStreamedGeometry = function (mx, my)
+{
+    if (this.scene && this.scene.nodeRenderObject && this.scene.nodeRenderObject.globerenderer)
+    {
+        return this.scene.nodeRenderObject.globerenderer.PickStreamedObjects(mx, my);
+    }
+}
+//-----------------------------------------------------------------------------
 /**
  * @description Returns the altitude above ground [m]
  */

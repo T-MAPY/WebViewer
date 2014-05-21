@@ -976,7 +976,101 @@ GlobeRenderer.prototype.PickGlobe = function(mx, my, pickresult)
          pickresult["elv"] = 0;
       }
    }
- }
+}
+//-----------------------------------------------------------------------------
+GlobeRenderer.prototype.PickStreamedObjects = function (mx, my)
+{
+    var pointDir = this.engine.GetDirectionMousePos(mx, my, this.engine.matModelViewProjection, true);
+    /*var candidates = new Array();
+
+    //pass through all visible terrain blocks and get then which could be pick
+    //this can be problem because picked building could be outside picked terrain block, but for speed is important
+    for (var i = 0; i < this.lstFrustum.length; i++)
+    {
+        if (this.lstFrustum[i].mesh == null) continue;
+
+        var bbmin = this.lstFrustum[i].mesh.bbmin;
+        var bbmax = this.lstFrustum[i].mesh.bbmax;
+
+        var res = this.lstFrustum[i].mesh.aabb.HitBox(pointDir.x, pointDir.y, pointDir.z,
+                                            pointDir.dirx, pointDir.diry, pointDir.dirz,
+                                            bbmin[0], bbmin[1], bbmin[2], bbmax[0], bbmax[1], bbmax[2]);
+
+        if (res)
+        {
+            candidates.push(this.lstFrustum[i]);
+        }
+
+    }
+
+    //pass through all picked terrain blocks
+    for (var i = 0; i < candidates.length; i++) 
+    {
+        var candidate = candidates[i];
+
+        var res = candidate.mesh.TestRayIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
+        if (res)
+        {
+            //pass through all geometries in terrain block
+            for (var j = 0; j < candidate.geometries.length; j++)
+            {
+                var geometry = candidate.geometries[j];
+                //pass through all surfaces in geometry
+                for (var k = 0; k < geometry.geometries.length; k++)
+                {
+                    var surface = geometry.geometries[k];
+
+                  var result = surface.TestRayIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
+                   if (result)
+                    {
+                      this.pickedSurfaces = this.GetAllBuildingParts(geometry.geometries, surface.modelId);                
+                      for(var i = 0; i <this.pickedSurfaces.length; i++)
+                      {
+                        var obj = _GetObjectFromId(this.pickedSurfaces[i]);
+                        obj.SetHighlightColor(1, 0, 0, 1);
+                      }
+                        return surface.modelId;
+                    }
+                }
+            }
+        }
+    }*/
+
+    for (var i = 0; i < this.lstFrustum.length; i++)
+    {
+        var terrainBlock = this.lstFrustum[i];
+        //pass through all geometries in terrain block
+        for (var j = 0; j < terrainBlock.geometries.length; j++)
+        {
+            var geometry = terrainBlock.geometries[j];
+            //pass through all surfaces in geometry
+            for (var k = 0; k < geometry.geometries.length; k++)
+            {
+                var surface = geometry.geometries[k];
+                var result = surface.TestRayIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
+
+                if (result)
+                {
+                    return [surface.modelId, this.GetAllBuildingParts(geometry.geometries, surface.modelId)];
+                }
+            }
+        }
+    }
+    return null;
+}
+//-----------------------------------------------------------------------------
+GlobeRenderer.prototype.GetAllBuildingParts = function (geometries, id)
+{
+    var ids = [];
+    for (var i = 0; i < geometries.length; i++)
+    {
+        if (geometries[i].modelId == id)
+        {
+            ids.push(geometries[i].id);
+        }
+    }
+    return ids;
+}
 //-----------------------------------------------------------------------------
 /**
  * @description PickEllipsoid: Retrieve clicked position (low precision result without elevation)

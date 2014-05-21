@@ -2622,6 +2622,23 @@ function ogPickGeometry(scene_id,mx,my)
 goog.exportSymbol('ogPickGeometry', ogPickGeometry);
 
 //------------------------------------------------------------------------------
+/** @description Returns the id of a picked streamed geometry
+ *  @param {number} scene_id 
+ *  @param {number} mx the mouse x coordinate
+ *  @param {number} my the mouse y coordinate
+ *  @returns 
+ */
+function ogPickStreamedGeometry(scene_id, mx, my)
+{
+    var scene = /** @type {ogScene} */_GetObjectFromId(scene_id);
+    if (scene && scene.type == OG_OBJECT_SCENE && scene.scenetype == OG_SCENE_3D_ELLIPSOID_WGS84)
+    {
+        return scene.PickStreamedGeometry(mx, my);
+    }
+}
+goog.exportSymbol('ogPickStreamedGeometry', ogPickStreamedGeometry);
+
+//------------------------------------------------------------------------------
 /** @description Returns the id of a picked geometry or -1
  *  @param {number} layer_id
  *  @param {Array.<number>} wgs84coord 

@@ -158,6 +158,18 @@ ogScene.prototype.PickBillboard = function(mx, my)
 }
 //------------------------------------------------------------------------------
 /**
+* @description Pick streamed geometries
+* @param {number} mx x-coord of mouse
+* @param {number} my y-coord of mouse
+*/
+ogScene.prototype.PickStreamedGeometry = function (mx, my)
+{
+    /** @type {ogContext} */
+    var context = /** @type ogContext */this.parent;
+    return context.engine.PickStreamedGeometry(mx, my);
+}
+//------------------------------------------------------------------------------
+/**
  * @description sets a new active camera.
  * 
  */
