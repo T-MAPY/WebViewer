@@ -386,7 +386,12 @@ GlobeRenderer.prototype.AddImageLayer = function(options)
               {
                   maxLod = options["maxLod"];
               }
-              imgLayer.Setup(options['mask'], maxLod);
+              var isHex = false;
+              if (goog.isDef(options["isHex"]))
+              {
+                  isHex = options["isHex"];
+              }
+              imgLayer.Setup(options['mask'], maxLod, isHex);
               index = this.imagelayerlist.length;
               this.imagelayerlist.push(imgLayer);
               this._UpdateLayers();
@@ -1047,11 +1052,17 @@ GlobeRenderer.prototype.PickStreamedObjects = function (mx, my)
             for (var k = 0; k < geometry.geometries.length; k++)
             {
                 var surface = geometry.geometries[k];
-                var result = surface.TestRayIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
 
-                if (result)
+                var bbResult = surface.TestBoundingBoxIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
+
+                if (bbResult)
                 {
-                    return [surface.modelId, this.GetAllBuildingParts(geometry.geometries, surface.modelId)];
+                    var result = surface.TestRayIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
+
+                    if (result)
+                    {
+                        return [surface.modelId, this.GetAllBuildingParts(geometry.geometries, surface.modelId)];
+                    }
                 }
             }
         }

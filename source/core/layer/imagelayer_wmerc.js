@@ -34,59 +34,91 @@ goog.require('owg.Texture');
  * @description global webmercator image layer
  * @author Martin Vlcek
  */
-function WMERCImageLayer() {
+function WMERCImageLayer()
+{
     this.mask = null;
     this.quadtree = new MercatorQuadtree();
     this.transparency = 1.0;
     this.maxLod = 17;
+    this.isHex = false;
 
     //---------------------------------------------------------------------------
-    this.Ready = function () {
+    this.Ready = function ()
+    {
         return true;
     }
     //---------------------------------------------------------------------------
-    this.Failed = function () {
+    this.Failed = function ()
+    {
         return false;
     }
     //---------------------------------------------------------------------------
-    this.RequestTile = function (engine, quadcode, layer, cbfReady, cbfFailed, caller) {
+    this.RequestTile = function (engine, quadcode, layer, cbfReady, cbfFailed, caller)
+    {
         var res = {};
         this.quadtree.QuadKeyToTileCoord(quadcode, res);
 
-        var sFilename = this.mask.format(res.lod, res.y, res.x);
+        var sFileName;
 
+        if (this.isHex)
+        {
+            sFileName = this.mask.format(res.lod,this.CreateHexValue(res.y),this.CreateHexValue(res.x));
+        }
+        else
+        {
+            sFileName = this.mask.format(res.lod, res.y, res.x);
+        }
         var ImageTexture = new Texture(engine);
         ImageTexture.quadcode = quadcode;   // store quadcode in texture object
         ImageTexture.layer = layer;
         ImageTexture.cbfReady = cbfReady;   // store the ready callback in texture object
         ImageTexture.cbfFailed = cbfFailed; // store the failure callback in texture object
         ImageTexture.caller = caller;
-        ImageTexture.loadTexture(sFilename, _cbWmercTileReady, _cbWmercTileFailed, true);
+        ImageTexture.loadTexture(sFileName, _cbWmercTileReady, _cbWmercTileFailed, true);
     };
+    //---------------------------------------------------------------------------
+    this.CreateHexValue = function (value)
+    {
+        var hexValue = value.toString(16);
 
+        var result = "";
+        for (var i = 0; i < 8 - hexValue.length; i++) {
+            result += "0";
+        }
+        result += hexValue;
+
+        return result;
+    }
     //---------------------------------------------------------------------------
 
-    this.GetMinLod = function () {
+    this.GetMinLod = function ()
+    {
         return 0;
     }
 
     //---------------------------------------------------------------------------
-    this.GetMaxLod = function () {
+    this.GetMaxLod = function ()
+    {
         return this.maxLod;
     }
 
     //---------------------------------------------------------------------------
-    this.Contains = function (quadcode) {
-        if (quadcode.length < 20) {
+    this.Contains = function (quadcode)
+    {
+        if (quadcode.length < 20)
+        {
             return true;
         }
         return false;
     }
     //---------------------------------------------------------------------------
 
-    this.Setup = function (mask, maxLod) {
+    this.Setup = function (mask, maxLod, isHex)
+    {
+        this.isHex = isHex;
         this.mask = mask;
-        if (maxLod != undefined) {
+        if (maxLod != undefined)
+        {
             this.maxLod = maxLod;
         }
     }
@@ -101,7 +133,8 @@ WMERCImageLayer.prototype = new ImageLayer();
 * @description internal callback function for tiles
 * @ignore
 */
-function _cbWmercTileReady(imgTex) {
+function _cbWmercTileReady(imgTex)
+{
     imgTex.cbfReady(imgTex.quadcode, imgTex, imgTex.layer);
     imgTex.cbfReady = null;
     imgTex.cbfFailed = null;
@@ -114,7 +147,8 @@ function _cbWmercTileReady(imgTex) {
  * @description internal callback function for tiles
  * @ignore
  */
-function _cbWmercTileFailed(imgTex) {
+function _cbWmercTileFailed(imgTex)
+{
     imgTex.cbfFailed(imgTex.quadcode, imgTex.caller, imgTex.layer);
     imgTex.cbfReady = null;
     imgTex.cbfFailed = null;

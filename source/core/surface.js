@@ -939,6 +939,11 @@ Surface.prototype.CreateFromJSONObject = function (jsonobject, readycbf, failedc
    {
       surface.cbr(surface);
    }
+   if (jsonobject['id'])
+   {
+       this.UpdateAABB();
+   }
+
 }
 //------------------------------------------------------------------------------
 /**
