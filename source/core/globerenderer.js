@@ -150,6 +150,8 @@ function GlobeRenderer(engine)
    /** @type {boolean} */
    this.hideelvonpt = false;
 
+    this.highlightedParts = [];
+
 }
 //------------------------------------------------------------------------------
 /**
@@ -985,88 +987,59 @@ GlobeRenderer.prototype.PickGlobe = function(mx, my, pickresult)
 //-----------------------------------------------------------------------------
 GlobeRenderer.prototype.PickStreamedObjects = function (mx, my)
 {
+    for (var i = 0; i < this.highlightedParts.length; i++)
+    {
+        this.highlightedParts[i].SetHighlightColor(1, 1, 1, 1);
+    }
+
     var pointDir = this.engine.GetDirectionMousePos(mx, my, this.engine.matModelViewProjection, true);
-    /*var candidates = new Array();
 
-    //pass through all visible terrain blocks and get then which could be pick
-    //this can be problem because picked building could be outside picked terrain block, but for speed is important
-    for (var i = 0; i < this.lstFrustum.length; i++)
+    for (var i = 0; i < this.globecache.StreamedObjectsManager.objectsList.length; i++)
     {
-        if (this.lstFrustum[i].mesh == null) continue;
+        var geometry = this.globecache.StreamedObjectsManager.objects[this.globecache.StreamedObjectsManager.objectsList[i]];
 
-        var bbmin = this.lstFrustum[i].mesh.bbmin;
-        var bbmax = this.lstFrustum[i].mesh.bbmax;
-
-        var res = this.lstFrustum[i].mesh.aabb.HitBox(pointDir.x, pointDir.y, pointDir.z,
-                                            pointDir.dirx, pointDir.diry, pointDir.dirz,
-                                            bbmin[0], bbmin[1], bbmin[2], bbmax[0], bbmax[1], bbmax[2]);
-
-        if (res)
+        for (var j = 0; j < geometry.geometries.length; j++)
         {
-            candidates.push(this.lstFrustum[i]);
-        }
-
-    }
-
-    //pass through all picked terrain blocks
-    for (var i = 0; i < candidates.length; i++) 
-    {
-        var candidate = candidates[i];
-
-        var res = candidate.mesh.TestRayIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
-        if (res)
-        {
-            //pass through all geometries in terrain block
-            for (var j = 0; j < candidate.geometries.length; j++)
+            var surface = geometry.geometries[j];
+            var bbResult = surface.TestBoundingBoxIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
+            if (bbResult)
             {
-                var geometry = candidate.geometries[j];
-                //pass through all surfaces in geometry
-                for (var k = 0; k < geometry.geometries.length; k++)
+                var result = surface.TestRayIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
+                if (result)
                 {
-                    var surface = geometry.geometries[k];
-
-                  var result = surface.TestRayIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
-                   if (result)
-                    {
-                      this.pickedSurfaces = this.GetAllBuildingParts(geometry.geometries, surface.modelId);                
-                      for(var i = 0; i <this.pickedSurfaces.length; i++)
-                      {
-                        var obj = _GetObjectFromId(this.pickedSurfaces[i]);
-                        obj.SetHighlightColor(1, 0, 0, 1);
-                      }
-                        return surface.modelId;
-                    }
-                }
-            }
-        }
-    }*/
-
-    for (var i = 0; i < this.lstFrustum.length; i++)
-    {
-        var terrainBlock = this.lstFrustum[i];
-        //pass through all geometries in terrain block
-        for (var j = 0; j < terrainBlock.geometries.length; j++)
-        {
-            var geometry = terrainBlock.geometries[j];
-            //pass through all surfaces in geometry
-            for (var k = 0; k < geometry.geometries.length; k++)
-            {
-                var surface = geometry.geometries[k];
-
-                var bbResult = surface.TestBoundingBoxIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
-
-                if (bbResult)
-                {
-                    var result = surface.TestRayIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
-
-                    if (result)
-                    {
-                        return [surface.modelId, this.GetAllBuildingParts(geometry.geometries, surface.modelId)];
-                    }
+                    this.GetAllBuildingParts(geometry.geometries, surface.buildingId);
+                    return surface.buildingId;
                 }
             }
         }
     }
+
+    //for (var i = 0; i < this.lstFrustum.length; i++)
+    //{
+    //    var terrainBlock = this.lstFrustum[i];
+    //    //pass through all geometries in terrain block
+    //    for (var j = 0; j < terrainBlock.geometries.length; j++)
+    //    {
+    //        var geometry = terrainBlock.geometries[j];
+    //        //pass through all surfaces in geometry
+    //        for (var k = 0; k < geometry.geometries.length; k++)
+    //        {
+    //            var surface = geometry.geometries[k];
+
+    //            var bbResult = surface.TestBoundingBoxIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
+
+    //            if (bbResult)
+    //            {
+    //                var result = surface.TestRayIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
+
+    //                if (result)
+    //                {
+    //                    return surface.buildingId;
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
     return null;
 }
 //-----------------------------------------------------------------------------
@@ -1075,11 +1048,14 @@ GlobeRenderer.prototype.GetAllBuildingParts = function (geometries, id)
     var ids = [];
     for (var i = 0; i < geometries.length; i++)
     {
-        if (geometries[i].modelId == id)
+        if (geometries[i].buildingId == id)
         {
             ids.push(geometries[i].id);
+            this.highlightedParts.push(geometries[i]);
+            geometries[i].SetHighlightColor(1, 0, 0, 1);
         }
     }
+
     return ids;
 }
 //-----------------------------------------------------------------------------

@@ -46,7 +46,7 @@ function owgGeometryLayer()
    this.curserver = 0;
    this.minlod = -1;
    this.maxlod = -1;
-    this.availableTiles = [];
+   this.availableTiles = [];
    
    //---------------------------------------------------------------------------
    this.Ready = function()

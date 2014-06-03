@@ -1062,7 +1062,7 @@ Surface.prototype.TestRayIntersection = function (x, y, z, dirx, diry, dirz)
       if (this.modelMatrix)
       {
          var invModelMatrix = new mat4();
-         invModelMatrix.CopyFrom(this.newModelMatrix);
+         invModelMatrix.CopyFrom(this.modelMatrix);
 
          var v1 = new vec3();
          v1.Set(this.currentTriangle.v1x, this.currentTriangle.v1y, this.currentTriangle.v1z);

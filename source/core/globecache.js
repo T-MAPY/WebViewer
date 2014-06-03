@@ -25,6 +25,7 @@ goog.provide('owg.GlobeCache');
 
 goog.require('owg.Cache');
 goog.require('owg.TerrainBlock');
+goog.require('owg.StreamedObjectsManager');
 
 //------------------------------------------------------------------------------
 /**
@@ -41,6 +42,8 @@ goog.require('owg.TerrainBlock');
  */
 function GlobeCache(engine, imagelayerlist, elevationlayerlist, geometrylayerlist, pointcloudlayerlist, quadtree, cachesize)
 {
+   /** @type {StreamedObjectsManager}*/
+   this.StreamedObjectsManager = new StreamedObjectsManager(engine, geometrylayerlist);
    /** @type {engine3d} */
    this.engine = engine;
    /** @type {Array.<ImageLayer>} */
@@ -132,7 +135,7 @@ GlobeCache.prototype.RequestBlock = function(quadcode)
    {
       this.stats.numRequests++;
       // item doesn't exist yet, create a new one and request data (async)
-      terrainblock = new TerrainBlock(this.engine, quadcode, this.quadtree);
+      terrainblock = new TerrainBlock(this.engine, quadcode, this.quadtree, this.StreamedObjectsManager);
       terrainblock._AsyncRequestData(this.imagelayerlist, this.elevationlayerlist, this.geometrylayerlist, this.pointcloudlayerlist);
       this.cache.setItem(quadcode, terrainblock);
    }

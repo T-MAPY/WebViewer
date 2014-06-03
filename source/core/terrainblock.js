@@ -36,8 +36,12 @@ goog.require('owg.vec3');
  * @description Terrainblock
  * @author Martin Christen, martin.christen@fhnw.ch
  */
-function TerrainBlock(engine, quadcode, quadtree)
+function TerrainBlock(engine, quadcode, quadtree, streamedobjectsmanager)
 {
+   /** @type {StreamedObjectsManager}*/
+   this.StreamedObjectsManager = streamedobjectsmanager;
+   /** @type {Array.<string>}*/
+   this.objectsPaths = [];
    /** @type {engine3d} */
    this.engine = engine;
    /** @type {string} */
@@ -229,8 +233,9 @@ TerrainBlock.prototype._AsyncRequestData = function(imagelayerlist, elevationlay
         {
             if (geometrylayerlist[i].Contains(this.quadcode))
             {
-                geometrylayerlist[i].RequestTile(this.engine, this.quadcode, i, _cbfOnGeometryTileReady, _cbfOnGeometryTileFailed, caller);
-                g_activeRequests++;
+                //geometrylayerlist[i].RequestTile(this.engine, this.quadcode, i, _cbfOnGeometryTileReady, _cbfOnGeometryTileFailed, caller);
+                //g_activeRequests++;
+                this.objectsPaths = this.StreamedObjectsManager.GetPathsFromQuadCode(this.quadcode);
             }
         }
     }
@@ -952,11 +957,18 @@ TerrainBlock.prototype.Render = function(nomaterial, hideelvonpt)
 
       this.engine.PopMatrices();
 
-      // render all streamed geometries
-      for (var i=0;i<this.geometries.length;i++)
-      {
-         this.geometries[i].Render();
-      }
+       // render all streamed geometries
+
+       this.StreamedObjectsManager.Render(this.objectsPaths);
+
+      //if (this.geometries.length < this.objectsPaths.length)
+      //{
+      //    this.StreamedObjectsManager.GetGeometries(this.geometries, this.objectsPaths);
+      //}
+      //for (var i=0;i<this.geometries.length;i++)
+      //{
+      //   this.geometries[i].Render();
+      //}
 
       // render all streamed point clouds
       for (var i=0;i<this.pointclouds.length;i++)
