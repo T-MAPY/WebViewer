@@ -108,6 +108,14 @@ function _ctx_callback_render(engine)
    }
 }
 //------------------------------------------------------------------------------
+function _ctx_callback_click(button, x, y, engine)
+{
+    var context = engine.owg;
+    if (context.cbfClick)
+    {
+        context.cbfClick(context.id, button, x, y);
+    }
+}
 /**
  * @ignore
  * @param {number} button mouse button
@@ -361,6 +369,7 @@ ogContext.prototype.ParseOptions = function(options)
    this.engine.SetInitCallback(_ctx_callback_init);
    this.engine.SetTimerCallback(_ctx_callback_timer);
    this.engine.SetRenderCallback(_ctx_callback_render);
+   this.engine.SetClickCallback(_ctx_callback_click);
    this.engine.SetMouseDownCallback(_ctx_callback_mousedown);
    this.engine.SetMouseUpCallback(_ctx_callback_mouseup);
    this.engine.SetMouseMoveCallback(_ctx_callback_mousemove);

@@ -682,6 +682,27 @@ goog.exportSymbol('ogGetTextSize', ogGetTextSize);
 // ** CONTEXT-EVENTS **
 //##############################################################################
 /**
+ * @description Set callback function for click event
+ * @param {number} context_id id of the context
+ * @param {function(number, number, number, number)} cbfClick the callback function
+ *
+ * the callback function has the following params:
+ *    1: context_id
+ *    2: mouse button
+ *    3: mouse x-coord
+ *    4: mouse y-coord
+ * 
+ */
+function ogSetClickFunction(context_id, cbfClick)
+{
+    var obj = _GetObjectFromId(context_id);
+    if (obj && obj.type == OG_OBJECT_CONTEXT)
+    {
+        obj.cbfClick = cbfClick;
+    }
+}
+//------------------------------------------------------------------------------
+/**
  * @description Set callback function for mouse down event
  * @param {number} context_id id of the context
  * @param {function(number, number, number, number)} cbfMouseDown the callback function
