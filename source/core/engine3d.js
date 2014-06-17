@@ -685,7 +685,7 @@ engine3d.prototype.VectorRender = function (geometryarray, bboxarray, opt_bBlend
    /** @type {WebGLRenderingContext} */
    var gl = this.gl;
 
-   //gl.clear(gl.STENCIL_BUFFER_BIT);
+   gl.clear(gl.STENCIL_BUFFER_BIT);
 
    /** @type {boolean} */
    var bBlend = opt_bBlend || false;
@@ -724,7 +724,7 @@ engine3d.prototype.VectorRender = function (geometryarray, bboxarray, opt_bBlend
    {
       gl.enable(gl.BLEND);
    }
-   //gl.disable(gl.DEPTH_TEST);
+   gl.disable(gl.DEPTH_TEST);
    gl.depthMask(true);
 
    for (var i = 0; i < bboxarray.length; i++)
@@ -1207,7 +1207,29 @@ engine3d.prototype.SetRenderCallback = function (f)
 {
    this.cbfRender = f;
 }
-
+//------------------------------------------------------------------------------
+/**
+ * @description sets the click callback function
+ *
+ * @param {?function(number, number, number, engine3d)} opt_f click callback handler.
+ */
+engine3d.prototype.SetClickCallback = function (opt_f)
+{
+    if (this.cbfClick)
+    {
+        goog.events.unlistenByKey(this.cbfClick);
+        this.cbfClick = null;
+    }
+    if(opt_f) {
+        this.cbfClick = goog.events.listen(this.context, goog.events.EventType.CLICK, function (e)
+        {
+            var x = e.clientX - this.xoffset / 2;
+            var y = e.clientY - this.yoffset / 2;
+            opt_f(e.button, x, y, this);
+        }, false, this);
+    }
+    
+}
 //------------------------------------------------------------------------------
 /**
  * @description sets the mousedown callback function
