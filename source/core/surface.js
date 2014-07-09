@@ -1193,12 +1193,12 @@ Surface.prototype.SetCurrentTriangle = function (triangleNumber)
       this.currentTriangle.v3z += this.offset[2];
    }
 
-   if (this.indexbufferdata[triangleNumber] == this.indexbufferdata[triangleNumber + 1]
-      || this.indexbufferdata[triangleNumber] == this.indexbufferdata[triangleNumber + 2]
-      || this.indexbufferdata[triangleNumber + 1] == this.indexbufferdata[triangleNumber + 2])
-   {
-      return false;
-   }
+   //if (this.indexbufferdata[triangleNumber] == this.indexbufferdata[triangleNumber + 1]
+   //   || this.indexbufferdata[triangleNumber] == this.indexbufferdata[triangleNumber + 2]
+   //   || this.indexbufferdata[triangleNumber + 1] == this.indexbufferdata[triangleNumber + 2])
+   //{
+   //   return false;
+   //}
 
    return true;
 }
