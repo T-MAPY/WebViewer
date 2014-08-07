@@ -89,7 +89,7 @@ function StreamedObjectsManager(engine, geometrylayerlist)
         {
             for (var j = yMin; j < yMax; j++)
             {
-                if (this.geometryLayer.availableTiles.indexOf('{0}_{1}'.format(i, j)) != -1)
+                if (!this.geometryLayer.haveAvailableTiles ||  this.geometryLayer.availableTiles.indexOf('{0}_{1}'.format(i, j)) != -1)
                 {
                     var path = this.geometryLayer.servers[0] + '/{0}/{1}/{0}_{1}.json'.format(i, j);
 
@@ -138,6 +138,13 @@ function _somOnGeometryTileReady(geometry)
 
     g_activeRequests--;
     manager.loadingPaths.splice(manager.loadingPaths.indexOf(geometry.jsonUrl, 1));
+
+    //var coords = new Array(4);
+    //manager.quadtree.QuadKeyToWGS84(geometry.quadcode, coords);
+    //var offset = geometry.geometries[0].offset;
+    //var gc = new GeoCoord(0, 0, 0);
+    //gc.FromCartesian(offset[0], offset[1], offset[2]);
+    //console.log(coords, [gc.GetLatitude(), gc.GetLongitude()], geometry.jsonUrl);
 }
 //------------------------------------------------------------------------------
 function _somOnGeometryTileFailed()

@@ -47,6 +47,8 @@ function owgGeometryLayer()
    this.minlod = -1;
    this.maxlod = -1;
    this.availableTiles = [];
+   this.withoutService = false;
+   this.haveAvailableTiles = false;
    
    //---------------------------------------------------------------------------
    this.Ready = function()
@@ -132,7 +134,7 @@ function owgGeometryLayer()
        {
            for (var j = yMin; j < yMax; j++)
            {
-               if (this.availableTiles.indexOf('{0}_{1}'.format(i, j)) != -1)
+               if (!this.haveAvailableTiles || this.availableTiles.indexOf('{0}_{1}'.format(i, j)) != -1)
                {
                    tilePaths.push('/{0}/{1}/{0}_{1}.json'.format(i, j));
                }
@@ -188,7 +190,7 @@ function owgGeometryLayer()
       this.minlod = minlod;
       this.maxlod = maxlod;
 
-      if (withoutService)
+      if (withoutService != undefined)
       {
           this.withoutService = true;
 
@@ -200,13 +202,23 @@ function owgGeometryLayer()
           this.objectsOrigin = data['Origin'];
           this.objectsStep = data['Step'];
 
-          metadataRequest.open('GET', servers[0] + '/tile_info.txt', false);
-          metadataRequest.send(null);
-          data = metadataRequest.responseText.split('\n');
-
-          for (var i = 0; i < data.length; i++)
+          if (withoutService == "onlyFiles")
           {
-              this.availableTiles.push(data[i].slice(0, data[i].length - 1));
+              metadataRequest.open('GET', servers[0] + '/tile_info.txt', false);
+              metadataRequest.send(null);
+              data = metadataRequest.responseText.split('\n');
+
+              for (var i = 0; i < data.length; i++)
+              {
+                  this.availableTiles.push(data[i].slice(0, data[i].length - 1));
+              }
+
+              this.haveAvailableTiles = true;
+          }
+
+          if (withoutService == "filesViaService")
+          {
+              
           }
       }
    }

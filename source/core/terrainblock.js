@@ -959,7 +959,7 @@ TerrainBlock.prototype.Render = function(nomaterial, hideelvonpt)
 
        // render all streamed geometries
 
-       this.StreamedObjectsManager.Render(this.objectsPaths);
+      this.StreamedObjectsManager.Render(this.objectsPaths);
 
       //if (this.geometries.length < this.objectsPaths.length)
       //{
