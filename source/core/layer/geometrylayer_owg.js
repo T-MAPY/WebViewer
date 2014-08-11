@@ -49,6 +49,7 @@ function owgGeometryLayer()
    this.availableTiles = [];
    this.withoutService = false;
    this.haveAvailableTiles = false;
+   this.haveFilesAndService = false;
    
    //---------------------------------------------------------------------------
    this.Ready = function()
@@ -129,6 +130,7 @@ function owgGeometryLayer()
        }
 
        var tilePaths = [];
+       var tileToService = [];
 
        for (var i = xMin; i < xMax; i++)
        {
@@ -138,6 +140,10 @@ function owgGeometryLayer()
                {
                    tilePaths.push('/{0}/{1}/{0}_{1}.json'.format(i, j));
                }
+               else if (this.haveFilesAndService)
+               {
+                   tileToService.push('/{0}/{1}/{0}_{1}.json'.format(i, j));
+               }
            }
        }
 
@@ -145,6 +151,17 @@ function owgGeometryLayer()
        tilePaths.forEach(function (tile)
        {
            var sFilename = self.servers[self.curserver] + tile;
+           var geometryBlock = new Geometry(engine);
+           geometryBlock.quadcode = quadcode; // store quadcode in texture object
+           geometryBlock.layer = layer;
+           geometryBlock.cbfReady = cbfReady; // store the ready callback in mesh object
+           geometryBlock.cbfFailed = cbfFailed; // store the failure callback in mesh object
+           geometryBlock.caller = caller;
+           geometryBlock.Load(sFilename, _cbGeometryTileReady_owg, _cbGeometryTileFailed_owg);
+       });
+       tileToService.forEach(function (tile)
+       {
+           var sFilename = self.servers[self.curserver + 1] + tile;
            var geometryBlock = new Geometry(engine);
            geometryBlock.quadcode = quadcode; // store quadcode in texture object
            geometryBlock.layer = layer;
@@ -202,7 +219,7 @@ function owgGeometryLayer()
           this.objectsOrigin = data['Origin'];
           this.objectsStep = data['Step'];
 
-          if (withoutService == "onlyFiles")
+          if (withoutService == "OnlyFiles" || withoutService == "FilesAndService")
           {
               metadataRequest.open('GET', servers[0] + '/tile_info.txt', false);
               metadataRequest.send(null);
@@ -214,9 +231,14 @@ function owgGeometryLayer()
               }
 
               this.haveAvailableTiles = true;
+
+              if (withoutService == "FilesAndService")
+              {
+                  this.haveFilesAndService = true;
+              }
           }
 
-          if (withoutService == "filesViaService")
+          if (withoutService == "FilesViaService")
           {
               
           }

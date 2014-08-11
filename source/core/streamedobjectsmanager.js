@@ -110,6 +110,27 @@ function StreamedObjectsManager(engine, geometrylayerlist)
                         g_activeRequests++;
                     }
                 }
+                else if (this.geometryLayer.haveFilesAndService)
+                {
+                    var path = this.geometryLayer.servers[1] + '/{0}/{1}/{0}_{1}.json'.format(i, j);
+
+                    paths.push(path);
+
+                    if (this.objects[path] == undefined && !(path in this.loadingPaths))
+                    {
+                        this.loadingPaths.push(path);
+
+                        var sFilename = path;
+                        var geometryBlock = new Geometry(this.engine);
+                        geometryBlock.quadcode = quadcode; // store quadcode in texture object
+                        //geometryBlock.layer = layer;
+                        geometryBlock.cbfReady = _somOnGeometryTileReady; // store the ready callback in mesh object
+                        geometryBlock.cbfFailed = _somOnGeometryTileFailed; // store the failure callback in mesh object
+                        geometryBlock.caller = this;
+                        geometryBlock.Load(sFilename, _somOnGeometryTileReady, _somOnGeometryTileFailed);
+                        g_activeRequests++;
+                    }
+                }
             }
         }
 
