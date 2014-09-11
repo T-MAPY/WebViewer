@@ -992,54 +992,44 @@ GlobeRenderer.prototype.PickStreamedObjects = function (mx, my)
         this.highlightedParts[i].SetHighlightColor(1, 1, 1, 1);
     }
 
+    var parentGeometry;
+    var pickedSurface;
+    var tmin = Number.MAX_VALUE;
+
     var pointDir = this.engine.GetDirectionMousePos(mx, my, this.engine.matModelViewProjection, true);
 
     for (var i = 0; i < this.globecache.StreamedObjectsManager.objectsList.length; i++)
     {
         var geometry = this.globecache.StreamedObjectsManager.objects[this.globecache.StreamedObjectsManager.objectsList[i]];
 
-        for (var j = 0; j < geometry.geometries.length; j++)
+        //TODO now not working, but i don't know why
+        //if (geometry.TestBoundingBoxIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz))
         {
-            var surface = geometry.geometries[j];
-            var bbResult = surface.TestBoundingBoxIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
-            if (bbResult)
+            for (var j = 0; j < geometry.geometries.length; j++)
             {
-                var result = surface.TestRayIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
-                if (result)
+                var surface = geometry.geometries[j];
+
+                if (surface.TestBoundingBoxIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz))
                 {
-                    this.GetAllBuildingParts(geometry.geometries, surface.buildingId);
-                    return surface.buildingId;
+                    var result = surface.TestRayIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
+                    if (result && result.t < tmin)
+                    {
+                        parentGeometry = geometry;
+                        pickedSurface = surface;
+                        tmin = result.t;
+                    }
                 }
             }
         }
     }
 
-    //for (var i = 0; i < this.lstFrustum.length; i++)
-    //{
-    //    var terrainBlock = this.lstFrustum[i];
-    //    //pass through all geometries in terrain block
-    //    for (var j = 0; j < terrainBlock.geometries.length; j++)
-    //    {
-    //        var geometry = terrainBlock.geometries[j];
-    //        //pass through all surfaces in geometry
-    //        for (var k = 0; k < geometry.geometries.length; k++)
-    //        {
-    //            var surface = geometry.geometries[k];
+    if (pickedSurface != null)
+    {
+        this.GetAllBuildingParts(parentGeometry.geometries, pickedSurface.buildingId);
+        return surface.buildingId;
+    }
 
-    //            var bbResult = surface.TestBoundingBoxIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
 
-    //            if (bbResult)
-    //            {
-    //                var result = surface.TestRayIntersection(pointDir.x, pointDir.y, pointDir.z, pointDir.dirx, pointDir.diry, pointDir.dirz);
-
-    //                if (result)
-    //                {
-    //                    return surface.buildingId;
-    //                }
-    //            }
-    //        }
-    //    }
-    //}
     return null;
 }
 //-----------------------------------------------------------------------------

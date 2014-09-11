@@ -23,6 +23,7 @@
 
 goog.provide('owg.Geometry');
 goog.require('owg.Surface');
+goog.require('owg.AABB');
 
 
 //------------------------------------------------------------------------------
@@ -54,6 +55,13 @@ function Geometry(engine)
 
    /** @type {mat4} */
    this.tmpmodel = new mat4();
+
+   /** @type {AABB} */
+   this.aabb = new AABB();
+   /** @type {?Array.<number>} */
+   this.bbmin = null;
+   /** @type {?Array.<number>} */
+   this.bbmax = null;
 }
 //------------------------------------------------------------------------------
 /**
@@ -121,6 +129,12 @@ Geometry.prototype.CreateFromJSONObject = function(jsonobject)
 
       this.offset = offset;
 
+      if (jsonobject['BoundingBox'])
+      {
+          this.bbmin = jsonobject['BoundingBox'][0];
+          this.bbmax = jsonobject['BoundingBox'][1];
+      }
+
       // now create this.geometries[] out of "objects". if successful set failed to false
       for (var i=0;i<objects.length;i++)
       {
@@ -132,6 +146,8 @@ Geometry.prototype.CreateFromJSONObject = function(jsonobject)
 
          // Set virtual camera offset:
          obj3d["Offset"] = offset;
+
+         obj3d["ParentGeometry"] = this;
 
          // Set global bounding box
          obj3d['BoundingBox'] = bbox;
@@ -168,6 +184,21 @@ Geometry.prototype.CreateFromJSONObject = function(jsonobject)
          this.cbr(this);
       }
    }
+}
+//------------------------------------------------------------------------------
+/**
+ * @description   Test for ray bounding box intersection
+ * @param {number} x x ray startpoint x coordinate
+ * @param {number} y y ray startpoint y coordinate
+ * @param {number} z z ray startpoint z coordinate
+ * @param {number} dirx normalized direction x coordinate
+ * @param {number} diry normalized direction y coordinate
+ * @param {number} dirz normalized direction z coordinate
+ */
+Geometry.prototype.TestBoundingBoxIntersection = function (x, y, z, dirx, diry, dirz) {
+    var result = this.aabb.HitBox(x, y, z, dirx, diry, dirz, this.bbmin[0], this.bbmin[1], this.bbmin[2], this.bbmax[0], this.bbmax[1], this.bbmax[2]);
+
+    return result;  //if result = null -> no hit!
 }
 
 //------------------------------------------------------------------------------

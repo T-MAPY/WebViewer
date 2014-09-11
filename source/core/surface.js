@@ -814,7 +814,17 @@ Surface.prototype.CreateFromJSONObject = function (jsonobject, readycbf, failedc
        if (jsonobject['id'])
        {
            this.buildingId = jsonobject['id'];
-           surface.modelMatrix = this.RecountOffsetElevation(surface.offset);
+
+           var objects = jsonobject["ParentGeometry"].geometries.filter(function(val) { return val.buildingId == jsonobject['id'] });
+           if (objects.length > 0)
+           {
+               surface.modelMatrix = objects[0].modelMatrix;
+
+           } else
+           {
+               var vertex = [jsonobject['Vertices'][0], jsonobject['Vertices'][1], jsonobject['Vertices'][2]];
+               surface.modelMatrix = this.RecountOffsetElevation([surface.offset[0] + vertex[0], surface.offset[1] + vertex[1], surface.offset[2] + vertex[2]]);
+           }
        }
    }
 
