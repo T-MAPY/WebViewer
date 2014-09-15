@@ -1219,6 +1219,9 @@ Surface.prototype.SetCurrentTriangle = function (triangleNumber)
  */
 Surface.prototype.UpdateAABB = function ()
 {
+   this.bbmin = new Array(3);
+   this.bbmax = new Array(3);
+
    var minx = 1e20;
    var miny = 1e20;
    var minz = 1e20;
@@ -1314,14 +1317,14 @@ Surface.prototype.UpdateAABB = function ()
       maxz += this.offset[2];
    }
 
-   if (goog.isNull(this.bbmin)) // no bounding box yet ?
-   {
-      this.bbmin = new Array(3);
-   }
-   if (goog.isNull(this.bbmax))
-   {
-      this.bbmax = new Array(3);
-   }
+   //if (goog.isNull(this.bbmin)) // no bounding box yet ?
+   //{
+   //   this.bbmin = new Array(3);
+   //}
+   //if (goog.isNull(this.bbmax))
+   //{
+   //   this.bbmax = new Array(3);
+   //}
 
    this.bbmin[0] = minx;
    this.bbmin[1] = miny;
